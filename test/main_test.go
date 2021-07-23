@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"context"
@@ -187,17 +187,21 @@ Table testing model
 
 {
 	Action: func action {}
-	Student1: nil
-	Student2: nil
-	Volunteer1: func assertBody(resp []byte) {}
+	Student1: {
+		structToUnmarshalTo
+		expectedStruct
+	}
+	Student2: nil (if nil, avoid ReadServerData and assert)
+	Volunteer1:
 	Volunteer2:
 	Volunteer3
 
 	* nil means no need to read server data
-	* func assertBody will read server data
+	* will read server data
+	compare struct
+	but how to know which struct to unmarhsal to? we pass the struct to unmarshal to:
+	then we assert the result
 }
-
-
 */
 
 func setupConnection() net.Conn {
