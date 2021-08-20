@@ -47,16 +47,16 @@ type StudentEvent interface {
 }
 
 type Student struct {
-	userID int
+	UserID int
 	Conn   net.Conn
-	fsm    *fsm.FSM
+	FSM    *fsm.FSM
 }
 
 func NewStudent(conn net.Conn) *Student {
 	s := &Student{
-		userID: idGenerator.getNewID(),
+		UserID: idGenerator.getNewID(),
 		Conn:   conn,
-		fsm:    studentFSMFactory(),
+		FSM:    studentFSMFactory(),
 	}
 	return s
 }
@@ -95,7 +95,7 @@ func NewStudentRepo() *StudentRepo {
 	}
 }
 
-func (s StudentRepo) GetStudentByConn(conn net.Conn) *Student {
+func (s *StudentRepo) GetStudentByConn(conn net.Conn) *Student {
 	for _, v := range s.students {
 		if v.Conn == conn {
 			return v
@@ -104,9 +104,9 @@ func (s StudentRepo) GetStudentByConn(conn net.Conn) *Student {
 	return nil
 }
 
-func (s StudentRepo) GetStudentByUserID(userID int) *Student {
+func (s *StudentRepo) GetStudentByUserID(userID int) *Student {
 	for _, v := range s.students {
-		if v.userID == userID {
+		if v != nil && v.UserID == userID {
 			return v
 		}
 	}
@@ -114,9 +114,9 @@ func (s StudentRepo) GetStudentByUserID(userID int) *Student {
 	return nil
 }
 
-func (s StudentRepo) SetConnByUserID(userID int, conn net.Conn) error {
+func (s *StudentRepo) SetConnByUserID(userID int, conn net.Conn) error {
 	for _, v := range s.students {
-		if v.userID == userID {
+		if v.UserID == userID {
 			v.Conn = conn
 			return nil
 		}
@@ -125,7 +125,7 @@ func (s StudentRepo) SetConnByUserID(userID int, conn net.Conn) error {
 	return fmt.Errorf(string(CONN_SET_FAILURE))
 }
 
-func (s StudentRepo) Add(student *Student) {
+func (s *StudentRepo) Add(student *Student) {
 	s.students = append(s.students, student)
 }
 
@@ -133,25 +133,67 @@ type StudentStateUpdate struct {
 	UserID int `json:"userId"`
 }
 
-func (s StudentRepo) PrepareStatusUpdate() []StudentStateUpdate {
-	states := make([]StudentStateUpdate, 5)
+func (s *StudentRepo) PrepareStatusUpdate() []StudentStateUpdate {
+	states := make([]StudentStateUpdate, 0)
 	for _, stud := range s.students {
-		states = append(states, StudentStateUpdate{
-			UserID: stud.userID,
-		})
-	}
+		if stud.FSM.Current() == "wait" {
+			states = append(states, StudentStateUpdate{
+				UserID: stud.UserID,
+			})
+		}
 
+	}
 	return states
 }
 
-func (s StudentRepo) EventByConn(conn net.Conn, e StudentEvent) error {
+func (s *StudentRepo) EventByConn(conn net.Conn, e StudentEvent) error {
 	student := s.GetStudentByConn(conn)
-	err := student.fsm.Event(e.Event())
+	err := student.FSM.Event(e.Event())
 	return err
 }
 
-func (s StudentRepo) EventByUserID(id int, e StudentEvent) error {
+func (s *StudentRepo) EventByUserID(id int, e StudentEvent) error {
 	student := s.GetStudentByUserID(id)
-	err := student.fsm.Event(e.Event())
+	err := student.FSM.Event(e.Event())
 	return err
+}
+
+type StudentLog struct {
+	UserID int      `header:"UserID"`
+	State  string   `header:"State"`
+	Conn   net.Conn `header:"Socket Ptr Add"`
+}
+
+func (s *StudentRepo) ReadState() []StudentLog {
+	logs := make([]StudentLog, 0)
+	for _, v := range s.students {
+		logs = append(logs, StudentLog{
+			UserID: v.UserID,
+			State:  v.FSM.Current(),
+			Conn:   v.Conn,
+		})
+	}
+	return logs
+}
+
+func (s *StudentRepo) RemoveByConn(conn net.Conn) {
+	for i, _ := range s.students {
+		if s.students[i].Conn == conn {
+			s.students[i] = s.students[len(s.students)-1]
+			s.students[len(s.students)-1] = nil
+			s.students = s.students[:len(s.students)-1]
+		}
+	}
+}
+
+func (s *StudentRepo) RemoveByUserID(userId int) {
+	fmt.Printf("Removing Userid: %d\n", userId)
+	for i, _ := range s.students {
+		if s.students[i].UserID == userId {
+			fmt.Printf("Userid found: %d at index: %d\n", userId, i)
+			s.students[i] = s.students[len(s.students)-1]
+			s.students[len(s.students)-1] = nil
+			s.students = s.students[:len(s.students)-1]
+		}
+	}
 }

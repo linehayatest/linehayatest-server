@@ -1,87 +1,53 @@
 package events
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
-type event int
+type Event int
 
 const (
-	ACCEPT_CHAT_REQUEST event = 1
-	END_CONVERSATION          = 2
-	VOLUNTEER_RECONNECT       = 3
-	VOLUNTEER_LOGIN           = 4
-	STUDENT_RECONNECT         = 5
-	REQUEST_FOR_CHAT          = 6
-	SEND_MESSAGE              = 7
+	VOLUNTEER_ACCEPT_CHAT_REQUEST Event = 1
+	VOLUNTEER_LOGIN                     = 2
+	VOLUNTEER_RECONNECT                 = 3
+	STUDENT_REQUEST_FOR_CHAT            = 4
+	STUDENT_RECONNECT                   = 5
+	SEND_MESSAGE                        = 6
+	END_CONVERSATION                    = 7
 )
 
+const VOLUNTEER_TYPE = "volunteer"
+const STUDENT_TYPE = "student"
+
 type Eventer interface {
-	Event() event
+	Event() Event
 }
 
-func (e event) Event() event {
+func (e Event) Event() Event {
 	return e
 }
 
 type Message struct {
-	Payload Payload `json:"payload"`
-	Event   event   `json:"event"`
-}
-
-type Payload interface {
-	Print()
+	Type Event `json:"type"`
+	// used to identify user
+	Metadata struct {
+		// either "volunteer" or "student"
+		UserType string `json:"type"`
+		// if "student", should be userId (else "email")
+		Identity string `json:"identity"`
+	} `json:"metadata"`
 }
 
 type AcceptChatPayload struct {
-	UserID int `json:"userId"`
-}
-
-func (p AcceptChatPayload) Print() {
-	bytes, err := json.Marshal(p)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(bytes))
+	Payload struct {
+		UserID int `json:"userId"`
+	} `json:"payload"`
 }
 
 type VolunteerReconnectPayload struct {
-	Email string `json:"email"`
-}
-
-func (p VolunteerReconnectPayload) Print() {
-	bytes, err := json.Marshal(p)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(bytes))
-}
-
-type StudentReconnectPayload struct {
-	UserID int `json:"userId"`
-}
-
-func (p StudentReconnectPayload) Print() {
-	bytes, err := json.Marshal(p)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(bytes))
+	Payload struct {
+		Email string `json:"email"`
+	} `json:"payload"`
 }
 
 type SendMessagePayload struct {
-	Message string `json:"message"`
-}
-
-func (p SendMessagePayload) Print() {
-	fmt.Println(p.Message)
-}
-
-type VolunteerLoginPayload struct {
-	Email string `json:"email"`
-}
-
-func (p VolunteerLoginPayload) Print() {
-	fmt.Println(p.Email)
+	Payload struct {
+		Message string `json:"message"`
+	} `json:"payload"`
 }

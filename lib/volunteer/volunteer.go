@@ -18,7 +18,7 @@ const (
 type volunteerState string
 
 const (
-	FREE            volunteerState = "wait"
+	FREE            volunteerState = "free"
 	CHAT_ACTIVE     volunteerState = "chat-active"
 	CHAT_DISCONNECT volunteerState = "chat-disconnect"
 )
@@ -50,16 +50,16 @@ func (v volunteerEvent) Event() string {
 }
 
 type Volunteer struct {
-	email string
+	Email string
 	Conn  net.Conn
-	fsm   *fsm.FSM
+	FSM   *fsm.FSM
 }
 
 func NewVolunteer(conn net.Conn, email string) *Volunteer {
 	s := &Volunteer{
-		email: email,
+		Email: email,
 		Conn:  conn,
-		fsm:   volunteerFSMFactory(),
+		FSM:   volunteerFSMFactory(),
 	}
 	return s
 }
@@ -103,9 +103,9 @@ func NewVolunteerRepo() *VolunteerRepo {
 	}
 }
 
-func (vs VolunteerRepo) SetConnByEmail(email string, conn net.Conn) error {
+func (vs *VolunteerRepo) SetConnByEmail(email string, conn net.Conn) error {
 	for _, v := range vs.volunteers {
-		if v.email == email {
+		if v.Email == email {
 			v.Conn = conn
 			return nil
 		}
@@ -114,7 +114,7 @@ func (vs VolunteerRepo) SetConnByEmail(email string, conn net.Conn) error {
 	return fmt.Errorf(string(CONN_SET_FAILURE))
 }
 
-func (vs VolunteerRepo) GetVolunteerByConnection(conn net.Conn) *Volunteer {
+func (vs *VolunteerRepo) GetVolunteerByConnection(conn net.Conn) *Volunteer {
 	for _, v := range vs.volunteers {
 		if v.Conn == conn {
 			return v
@@ -123,13 +123,25 @@ func (vs VolunteerRepo) GetVolunteerByConnection(conn net.Conn) *Volunteer {
 	return nil
 }
 
-func (vs VolunteerRepo) NotifyAll(message string) {
+func (vs *VolunteerRepo) GetVolunteerByEmail(email string) *Volunteer {
 	for _, v := range vs.volunteers {
-		wsutil.WriteServerMessage(v.Conn, ws.OpText, []byte(message))
+		if v.Email == email {
+			return v
+		}
+	}
+	return nil
+}
+
+func (vs *VolunteerRepo) NotifyAll(message string) {
+	for _, v := range vs.volunteers {
+		err := wsutil.WriteServerMessage(v.Conn, ws.OpText, []byte(message))
+		if err != nil {
+			fmt.Printf("ERROR writing this connection: %v (u.email: %s)", v.Conn, v.Email)
+		}
 	}
 }
 
-func (vs VolunteerRepo) Add(v *Volunteer) {
+func (vs *VolunteerRepo) Add(v *Volunteer) {
 	vs.volunteers = append(vs.volunteers, v)
 }
 
@@ -138,19 +150,62 @@ type VolunteerStateUpdate struct {
 	State string `json:"state"`
 }
 
-func (vs VolunteerRepo) PrepareStatusUpdate() []VolunteerStateUpdate {
-	states := make([]VolunteerStateUpdate, 5)
+func (vs *VolunteerRepo) PrepareStatusUpdate() []VolunteerStateUpdate {
+	states := make([]VolunteerStateUpdate, 0)
 	for _, v := range vs.volunteers {
 		states = append(states, VolunteerStateUpdate{
-			Email: v.email,
-			State: v.fsm.Current(),
+			Email: v.Email,
+			State: v.FSM.Current(),
 		})
 	}
 	return states
 }
 
-func (v VolunteerRepo) EventByConn(conn net.Conn, e VolunteerEvent) error {
-	volunteer := v.GetVolunteerByConnection(conn)
-	err := volunteer.fsm.Event(e.Event())
+func (v *VolunteerRepo) EventByEmail(email string, e VolunteerEvent) error {
+	volunteer := v.GetVolunteerByEmail(email)
+	err := volunteer.FSM.Event(e.Event())
 	return err
+}
+
+func (v *VolunteerRepo) EventByConn(conn net.Conn, e VolunteerEvent) error {
+	volunteer := v.GetVolunteerByConnection(conn)
+	err := volunteer.FSM.Event(e.Event())
+	return err
+}
+
+type VolunteerLog struct {
+	Email string   `header:"Email"`
+	State string   `header:"State"`
+	Conn  net.Conn `header:"Socket Ptr Add"`
+}
+
+func (s *VolunteerRepo) ReadState() []VolunteerLog {
+	logs := make([]VolunteerLog, 0)
+	for _, v := range s.volunteers {
+		logs = append(logs, VolunteerLog{
+			Email: v.Email,
+			State: v.FSM.Current(),
+			Conn:  v.Conn,
+		})
+	}
+	return logs
+}
+
+func (s *VolunteerRepo) RemoveByConn(conn net.Conn) {
+	for i, _ := range s.volunteers {
+		if s.volunteers[i].Conn == conn {
+			s.volunteers[i] = s.volunteers[len(s.volunteers)-1]
+			s.volunteers[len(s.volunteers)-1] = nil
+			s.volunteers = s.volunteers[:len(s.volunteers)-1]
+		}
+	}
+}
+
+func (s *VolunteerRepo) ExistVolunteerWithEmail(email string) bool {
+	for _, v := range s.volunteers {
+		if v.Email == email {
+			return true
+		}
+	}
+	return false
 }

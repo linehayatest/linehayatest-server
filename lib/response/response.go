@@ -16,26 +16,32 @@ const (
 	PARTY_HAS_TIMEOUT          = 5
 	PARTY_HAS_END_CONVERSATION = 6
 	DASHBOARD_STATUS_UPDATE    = 7
+	CHAT_REQUEST_REPLY         = 8
 )
 
 type message struct {
-	Event int `json:"event"`
+	Type int `json:"type"`
 }
 
 type chatMessage struct {
-	message
+	Type    int    `json:"type"`
 	Message string `json:"message"`
 }
 
 type dashboardStatusUpdate struct {
-	message
-	volunteers []volunteer.VolunteerStateUpdate `json:"volunteers"`
-	students   []student.StudentStateUpdate     `json:"students"`
+	Type       int                              `json:"type"`
+	Volunteers []volunteer.VolunteerStateUpdate `json:"volunteers"`
+	Students   []student.StudentStateUpdate     `json:"students"`
+}
+
+type chatRequestReply struct {
+	Type   int `json:"type"`
+	UserId int `json:"userId"`
 }
 
 func ChatRequestAcceptedFactory() []byte {
 	m := message{
-		Event: CHAT_REQUEST_ACCEPTED,
+		Type: CHAT_REQUEST_ACCEPTED,
 	}
 	r, err := json.Marshal(m)
 	err2.Check(err)
@@ -45,9 +51,7 @@ func ChatRequestAcceptedFactory() []byte {
 
 func ChatMessageFactory(messageContent string) []byte {
 	m := chatMessage{
-		message: message{
-			Event: CHAT_MESSAGE,
-		},
+		Type:    CHAT_MESSAGE,
 		Message: messageContent,
 	}
 	r, err := json.Marshal(m)
@@ -58,7 +62,7 @@ func ChatMessageFactory(messageContent string) []byte {
 
 func PartyHasReconnectFactory() []byte {
 	m := message{
-		Event: PARTY_HAS_RECONNECT,
+		Type: PARTY_HAS_RECONNECT,
 	}
 	r, err := json.Marshal(m)
 	err2.Check(err)
@@ -68,7 +72,7 @@ func PartyHasReconnectFactory() []byte {
 
 func PartyHasDisconnectFactory() []byte {
 	m := message{
-		Event: PARTY_HAS_DISCONNECT,
+		Type: PARTY_HAS_DISCONNECT,
 	}
 	r, err := json.Marshal(m)
 	err2.Check(err)
@@ -78,7 +82,7 @@ func PartyHasDisconnectFactory() []byte {
 
 func PartyHasTimeoutFactory() []byte {
 	m := message{
-		Event: PARTY_HAS_TIMEOUT,
+		Type: PARTY_HAS_TIMEOUT,
 	}
 	r, err := json.Marshal(m)
 	err2.Check(err)
@@ -88,7 +92,7 @@ func PartyHasTimeoutFactory() []byte {
 
 func PartyHasEndConversationFactory() []byte {
 	m := message{
-		Event: PARTY_HAS_END_CONVERSATION,
+		Type: PARTY_HAS_END_CONVERSATION,
 	}
 	r, err := json.Marshal(m)
 	err2.Check(err)
@@ -98,14 +102,23 @@ func PartyHasEndConversationFactory() []byte {
 
 func DashboardStatusUpdate(volunteers []volunteer.VolunteerStateUpdate, students []student.StudentStateUpdate) []byte {
 	m := dashboardStatusUpdate{
-		volunteers: volunteers,
-		students:   students,
-		message: message{
-			Event: DASHBOARD_STATUS_UPDATE,
-		},
+		Type:       DASHBOARD_STATUS_UPDATE,
+		Volunteers: volunteers,
+		Students:   students,
 	}
 	r, err := json.Marshal(m)
 	err2.Check(err)
 
+	return r
+}
+
+func ChatRequestReply(userId int) []byte {
+	m := chatRequestReply{
+		Type:   CHAT_REQUEST_REPLY,
+		UserId: userId,
+	}
+
+	r, err := json.Marshal(m)
+	err2.Check(err)
 	return r
 }

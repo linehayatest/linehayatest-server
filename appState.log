@@ -1,0 +1,572 @@
+Time: 16:5:40
+
+NEW CONNECTION
+
+
+Time: 16:5:40
+EVENT: STUDENT_REQUEST_FOR_CHAT
+Event from: STUDENT: 1 [Connection: &{{0xc0003c8500}}]
+
+STUDENTS:
+  USERID   STATE   SOCKET PTR ADD     
+ -------- ------- ------------------- 
+       1   wait    &{{0xc0003c8500}}  
+
+
+VOLUNTEERS:
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:5:43
+EVENT: Student Disconnect
+Event from: Student (1)
+
+STUDENTS:
+
+
+VOLUNTEERS:
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:5:49
+
+NEW CONNECTION
+
+
+Time: 16:5:50
+EVENT: VOLUNTEER_LOGIN
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:5:53
+
+NEW CONNECTION
+
+
+Time: 16:5:53
+EVENT: STUDENT_REQUEST_FOR_CHAT
+Event from: STUDENT: 2 [Connection: &{{0xc000122f00}}]
+
+STUDENTS:
+  USERID   STATE   SOCKET PTR ADD     
+ -------- ------- ------------------- 
+       2   wait    &{{0xc000122f00}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:5:56
+EVENT: VOLUNTEER_ACCEPT_CHAT_REQUEST
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       2   chat-active   &{{0xc000122f00}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           2   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:0
+EVENT: END_CONVERSATION
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       2   chat-active   &{{0xc000122f00}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           2   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:0
+EVENT: Student Disconnect
+Event from: Student (2)
+
+STUDENTS:
+  USERID   STATE             SOCKET PTR ADD     
+ -------- ----------------- ------------------- 
+       2   chat-disconnect   &{{0xc000122f00}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           2   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:3
+
+NEW CONNECTION
+
+
+Time: 16:6:3
+EVENT: STUDENT_REQUEST_FOR_CHAT
+Event from: STUDENT: 3 [Connection: &{{0xc0003c9180}}]
+
+STUDENTS:
+  USERID   STATE   SOCKET PTR ADD     
+ -------- ------- ------------------- 
+       3   wait    &{{0xc0003c9180}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:6:5
+EVENT: VOLUNTEER_ACCEPT_CHAT_REQUEST
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       3   chat-active   &{{0xc0003c9180}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           3   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:6
+EVENT: END_CONVERSATION
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       3   chat-active   &{{0xc0003c9180}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           3   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:6
+EVENT: Student Disconnect
+Event from: Student (3)
+
+STUDENTS:
+  USERID   STATE             SOCKET PTR ADD     
+ -------- ----------------- ------------------- 
+       3   chat-disconnect   &{{0xc0003c9180}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           3   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:9
+
+NEW CONNECTION
+
+
+Time: 16:6:9
+EVENT: STUDENT_REQUEST_FOR_CHAT
+Event from: STUDENT: 4 [Connection: &{{0xc000123680}}]
+
+STUDENTS:
+  USERID   STATE   SOCKET PTR ADD     
+ -------- ------- ------------------- 
+       4   wait    &{{0xc000123680}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:6:12
+EVENT: VOLUNTEER_ACCEPT_CHAT_REQUEST
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       4   chat-active   &{{0xc000123680}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           4   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:13
+EVENT: END_CONVERSATION
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       4   chat-active   &{{0xc000123680}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           4   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:13
+EVENT: Student Disconnect
+Event from: Student (4)
+
+STUDENTS:
+  USERID   STATE             SOCKET PTR ADD     
+ -------- ----------------- ------------------- 
+       4   chat-disconnect   &{{0xc000123680}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           4   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:19
+
+NEW CONNECTION
+
+
+Time: 16:6:19
+EVENT: STUDENT_REQUEST_FOR_CHAT
+Event from: STUDENT: 5 [Connection: &{{0xc0001e0280}}]
+
+STUDENTS:
+  USERID   STATE   SOCKET PTR ADD     
+ -------- ------- ------------------- 
+       5   wait    &{{0xc0001e0280}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:6:21
+EVENT: VOLUNTEER_ACCEPT_CHAT_REQUEST
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       5   chat-active   &{{0xc0001e0280}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           5   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:25
+EVENT: END_CONVERSATION
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       5   chat-active   &{{0xc0001e0280}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           5   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:25
+EVENT: Student Disconnect
+Event from: Student (5)
+
+STUDENTS:
+  USERID   STATE             SOCKET PTR ADD     
+ -------- ----------------- ------------------- 
+       5   chat-disconnect   &{{0xc0001e0280}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           5   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:28
+
+NEW CONNECTION
+
+
+Time: 16:6:28
+EVENT: STUDENT_REQUEST_FOR_CHAT
+Event from: STUDENT: 6 [Connection: &{{0xc00009ec80}}]
+
+STUDENTS:
+  USERID   STATE   SOCKET PTR ADD     
+ -------- ------- ------------------- 
+       6   wait    &{{0xc00009ec80}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:6:30
+EVENT: VOLUNTEER_ACCEPT_CHAT_REQUEST
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc000122c80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       6   chat-active   &{{0xc00009ec80}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           6   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:32
+EVENT: END_CONVERSATION
+Event from: STUDENT: 6 [Connection: &{{0xc00009ec80}}]
+
+STUDENTS:
+  USERID   STATE         SOCKET PTR ADD     
+ -------- ------------- ------------------- 
+       6   chat-active   &{{0xc00009ec80}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE         SOCKET PTR ADD     
+ --------------------- ------------- ------------------- 
+  maxosen64@gmail.com   chat-active   &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+  STUDENT ID   VOLUNTEER EMAIL      
+ ------------ --------------------- 
+           6   maxosen64@gmail.com  
+
+========================================================
+
+Time: 16:6:52
+
+NEW CONNECTION
+
+
+Time: 16:6:52
+EVENT: STUDENT_REQUEST_FOR_CHAT
+Event from: STUDENT: 7 [Connection: &{{0xc0003c9400}}]
+
+STUDENTS:
+  USERID   STATE   SOCKET PTR ADD     
+ -------- ------- ------------------- 
+       7   wait    &{{0xc0003c9400}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc000122c80}}  
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:7:2
+EVENT: Volunteer Disconnect
+Event from: Volunteer (maxosen64@gmail.com)
+
+STUDENTS:
+  USERID   STATE   SOCKET PTR ADD     
+ -------- ------- ------------------- 
+       7   wait    &{{0xc0003c9400}}  
+
+
+VOLUNTEERS:
+
+
+CONNECTIONS:
+
+========================================================
+
+Time: 16:7:5
+
+NEW CONNECTION
+
+
+Time: 16:7:5
+EVENT: VOLUNTEER_LOGIN
+Event from: VOLUNTEER: maxosen64@gmail.com [Connection: &{{0xc00009f400}}]
+
+STUDENTS:
+  USERID   STATE   SOCKET PTR ADD     
+ -------- ------- ------------------- 
+       7   wait    &{{0xc0003c9400}}  
+
+
+VOLUNTEERS:
+  EMAIL                 STATE   SOCKET PTR ADD     
+ --------------------- ------- ------------------- 
+  maxosen64@gmail.com   free    &{{0xc00009f400}}  
+
+
+CONNECTIONS:
+
+========================================================
+
