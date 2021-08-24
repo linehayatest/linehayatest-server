@@ -2,8 +2,6 @@ package response
 
 import (
 	"encoding/json"
-	"wstest/lib/student"
-	"wstest/lib/volunteer"
 
 	"github.com/lainio/err2"
 )
@@ -23,15 +21,24 @@ type message struct {
 	Type int `json:"type"`
 }
 
-type chatMessage struct {
+type ChatMessage struct {
 	Type    int    `json:"type"`
 	Message string `json:"message"`
 }
 
+type VolunteerStateUpdate struct {
+	Email string `json:"email"`
+	State string `json:"state"`
+}
+
+type StudentStateUpdate struct {
+	UserID int `json:"userId"`
+}
+
 type dashboardStatusUpdate struct {
-	Type       int                              `json:"type"`
-	Volunteers []volunteer.VolunteerStateUpdate `json:"volunteers"`
-	Students   []student.StudentStateUpdate     `json:"students"`
+	Type       int                    `json:"type"`
+	Volunteers []VolunteerStateUpdate `json:"volunteers"`
+	Students   []StudentStateUpdate   `json:"students"`
 }
 
 type chatRequestReply struct {
@@ -49,12 +56,26 @@ func ChatRequestAcceptedFactory() []byte {
 	return r
 }
 
+func NewChatMessage(messageContent string) ChatMessage {
+	return ChatMessage{
+		Type: CHAT_MESSAGE,
+		Message: messageContent,
+	}
+}
+
 func ChatMessageFactory(messageContent string) []byte {
-	m := chatMessage{
+	m := ChatMessage{
 		Type:    CHAT_MESSAGE,
 		Message: messageContent,
 	}
 	r, err := json.Marshal(m)
+	err2.Check(err)
+
+	return r
+}
+
+func SerializeChatMessage(msg ChatMessage) []byte {
+	r, err := json.Marshal(msg)
 	err2.Check(err)
 
 	return r
@@ -100,7 +121,7 @@ func PartyHasEndConversationFactory() []byte {
 	return r
 }
 
-func DashboardStatusUpdate(volunteers []volunteer.VolunteerStateUpdate, students []student.StudentStateUpdate) []byte {
+func DashboardStatusUpdate(volunteers []VolunteerStateUpdate, students []StudentStateUpdate) []byte {
 	m := dashboardStatusUpdate{
 		Type:       DASHBOARD_STATUS_UPDATE,
 		Volunteers: volunteers,

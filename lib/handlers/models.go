@@ -7,3 +7,7 @@ type CanLoginResponse struct {
 type CanReconnectResponse struct {
 	CanReconnect bool `json:"canReconnect"`
 }
+
+type IsStudentActiveOnAnotherTabResponse struct {
+	IsActive bool `json:"isActive"`
+}

@@ -49,6 +49,7 @@ func main() {
 
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
+		AllowMethods:    []string{"GET", "PATCH", "PUT", "POST", "OPTIONS", "HEAD", "DELETE"},
 	}))
 
 	r.GET("can_volunteer_login/:email", h.CanLogin)
@@ -56,6 +57,10 @@ func main() {
 	r.GET("can_volunteer_reconnect/:email", h.CanVolunteerReconnect)
 
 	r.GET("can_student_reconnect/:userId", h.CanStudentReconnect)
+
+	r.GET("is_student_active_on_another_tab/:userId", h.IsStudentActiveOnAnotherTab)
+
+	r.PUT("student_end_conversation/:userId", h.StudentEndConversation)
 
 	r.GET("/ws", func(c *gin.Context) {
 		defer err2.Catch(func(err error) {
@@ -153,23 +158,25 @@ func parseMessage(data []byte) (events.Message, error) {
 // TODO: send status update to volunteers
 func handleStudentEndConversation(conn net.Conn, userId int) {
 	appLogger.Log(events.END_CONVERSATION, conn)
-	connections.SendToConnected(conn, string(response.PartyHasDisconnectFactory()))
+	connections.SendToConnectedVolunteer(userId, string(response.PartyHasEndConversationFactory()))
 	v := connections.GetConnectedVolunteer(userId)
 	if v != nil {
-		volunteers.EventByConn(v.Conn, volunteer.END_CONVERSATION)
+		if v.FSM.Current() == volunteer.CHAT_DISCONNECT.State() {
+			volunteers.RemoveByConn(v.Conn)
+		} else {
+			volunteers.EventByConn(v.Conn, volunteer.END_CONVERSATION)
+		}
 	}
 	connections.RemoveConnection(conn)
-	conn.Close()
 	students.RemoveByUserID(userId)
 }
 
 // TODO: send status update to volunteers
 func handleVolunteerEndConversation(conn net.Conn, email string) {
 	appLogger.Log(events.END_CONVERSATION, conn)
-	connections.SendToConnectedStudent(email, string(response.PartyHasDisconnectFactory()))
+	connections.SendToConnectedStudent(email, string(response.PartyHasEndConversationFactory()))
 	volunteers.EventByConn(conn, volunteer.END_CONVERSATION)
 	s := connections.GetConnectedStudent(email)
-	s.Conn.Close()
 	if s != nil {
 		students.RemoveByUserID(s.UserID)
 	}
@@ -177,13 +184,35 @@ func handleVolunteerEndConversation(conn net.Conn, email string) {
 }
 
 func handleStudentSendMessage(conn net.Conn, userId int, message string) {
-	connections.SendToConnectedVolunteer(userId, string(response.ChatMessageFactory(message)))
 	appLogger.Log(events.SEND_MESSAGE, conn)
+
+	v := connections.GetConnectedVolunteer(userId)
+	if v == nil {
+		return
+	}
+
+	if v.FSM.Current() == volunteer.CHAT_DISCONNECT.State() {
+		v.UnsentChatMessages = append(v.UnsentChatMessages, response.NewChatMessage(message))
+		return
+	}
+
+	connections.SendToConnectedVolunteer(userId, string(response.ChatMessageFactory(message)))
 }
 
 func handleVolunteerSendMessage(conn net.Conn, email, message string) {
-	connections.SendToConnectedStudent(email, string(response.ChatMessageFactory(message)))
 	appLogger.Log(events.SEND_MESSAGE, conn)
+
+	s := connections.GetConnectedStudent(email)
+	if s == nil {
+		return
+	}
+
+	if s.FSM.Current() == student.CHAT_DISCONNECT.State() {
+		s.UnsentChatMessages = append(s.UnsentChatMessages, response.NewChatMessage(message))
+		return
+	}
+
+	connections.SendToConnectedStudent(email, string(response.ChatMessageFactory(message)))
 }
 
 func handleAcceptChatRequest(volunteerConn net.Conn, volunteerEmail string, studentUserID int) {
@@ -202,6 +231,8 @@ func handleVolunteerReconnect(email string, conn net.Conn) {
 	err := volunteers.SetConnByEmail(email, conn)
 	err2.Check(err)
 
+	volunteers.SendUnsentMessagesByEmail(email)
+
 	volunteers.EventByEmail(email, volunteer.RECONNECT)
 
 	connections.SendToConnected(conn, string(response.PartyHasReconnectFactory()))
@@ -212,6 +243,8 @@ func handleVolunteerReconnect(email string, conn net.Conn) {
 func handleStudentReconnect(userID int, conn net.Conn) {
 	err := students.SetConnByUserID(userID, conn)
 	err2.Check(err)
+
+	students.SendUnsentMessagesByUserID(userID)
 
 	students.EventByConn(conn, student.RECONNECT)
 

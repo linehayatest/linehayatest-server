@@ -58,8 +58,6 @@ func (c *Connections) SendToConnectedStudent(volunteerEmail string, message stri
 	for s, v := range c.connections {
 		if v != nil && v.Email == volunteerEmail && v.Conn != nil {
 			err := wsutil.WriteServerMessage(s.Conn, ws.OpText, []byte(message))
-			fmt.Println("IM WRITING TO THIS STUDENT")
-			fmt.Println(message)
 			if err != nil {
 				log.Println("ERROR Sending chat message")
 			}
@@ -93,6 +91,15 @@ func (c *Connections) SendToConnected(conn net.Conn, message string) {
 func (c *Connections) RemoveConnection(conn net.Conn) {
 	for k, v := range c.connections {
 		if k.Conn == conn || v.Conn == conn {
+			k.Conn.Close()
+			delete(c.connections, k)
+		}
+	}
+}
+
+func (c *Connections) RemoveConnectionByStudentID(userId int) {
+	for k, _ := range c.connections {
+		if k.UserID == userId {
 			k.Conn.Close()
 			delete(c.connections, k)
 		}

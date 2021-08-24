@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"net"
 
+	"wstest/lib/response"
+
+	"github.com/gobwas/ws"
+	"github.com/gobwas/ws/wsutil"
 	"github.com/looplab/fsm"
 )
 
@@ -47,16 +51,18 @@ type StudentEvent interface {
 }
 
 type Student struct {
-	UserID int
-	Conn   net.Conn
-	FSM    *fsm.FSM
+	UserID             int
+	Conn               net.Conn
+	FSM                *fsm.FSM
+	UnsentChatMessages []response.ChatMessage
 }
 
 func NewStudent(conn net.Conn) *Student {
 	s := &Student{
-		UserID: idGenerator.getNewID(),
-		Conn:   conn,
-		FSM:    studentFSMFactory(),
+		UserID:             idGenerator.getNewID(),
+		Conn:               conn,
+		FSM:                studentFSMFactory(),
+		UnsentChatMessages: make([]response.ChatMessage, 0),
 	}
 	return s
 }
@@ -125,19 +131,27 @@ func (s *StudentRepo) SetConnByUserID(userID int, conn net.Conn) error {
 	return fmt.Errorf(string(CONN_SET_FAILURE))
 }
 
+func (s *StudentRepo) SendUnsentMessagesByUserID(userID int) {
+	for _, v := range s.students {
+		if v.UserID == userID {
+			fmt.Println("sending chat messages OKAY?")
+			fmt.Printf("Unsent chat messages: %v\n", v.UnsentChatMessages)
+			for _, msg := range v.UnsentChatMessages {
+				wsutil.WriteServerMessage(v.Conn, ws.OpText, response.SerializeChatMessage(msg))
+			}
+		}
+	}
+}
+
 func (s *StudentRepo) Add(student *Student) {
 	s.students = append(s.students, student)
 }
 
-type StudentStateUpdate struct {
-	UserID int `json:"userId"`
-}
-
-func (s *StudentRepo) PrepareStatusUpdate() []StudentStateUpdate {
-	states := make([]StudentStateUpdate, 0)
+func (s *StudentRepo) PrepareStatusUpdate() []response.StudentStateUpdate {
+	states := make([]response.StudentStateUpdate, 0)
 	for _, stud := range s.students {
 		if stud.FSM.Current() == "wait" {
-			states = append(states, StudentStateUpdate{
+			states = append(states, response.StudentStateUpdate{
 				UserID: stud.UserID,
 			})
 		}
@@ -187,10 +201,8 @@ func (s *StudentRepo) RemoveByConn(conn net.Conn) {
 }
 
 func (s *StudentRepo) RemoveByUserID(userId int) {
-	fmt.Printf("Removing Userid: %d\n", userId)
 	for i, _ := range s.students {
 		if s.students[i].UserID == userId {
-			fmt.Printf("Userid found: %d at index: %d\n", userId, i)
 			s.students[i] = s.students[len(s.students)-1]
 			s.students[len(s.students)-1] = nil
 			s.students = s.students[:len(s.students)-1]

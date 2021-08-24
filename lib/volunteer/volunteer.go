@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net"
 
+	"wstest/lib/response"
+
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
 	"github.com/looplab/fsm"
@@ -50,16 +52,18 @@ func (v volunteerEvent) Event() string {
 }
 
 type Volunteer struct {
-	Email string
-	Conn  net.Conn
-	FSM   *fsm.FSM
+	Email              string
+	Conn               net.Conn
+	FSM                *fsm.FSM
+	UnsentChatMessages []response.ChatMessage
 }
 
 func NewVolunteer(conn net.Conn, email string) *Volunteer {
 	s := &Volunteer{
-		Email: email,
-		Conn:  conn,
-		FSM:   volunteerFSMFactory(),
+		Email:              email,
+		Conn:               conn,
+		FSM:                volunteerFSMFactory(),
+		UnsentChatMessages: make([]response.ChatMessage, 0),
 	}
 	return s
 }
@@ -141,19 +145,24 @@ func (vs *VolunteerRepo) NotifyAll(message string) {
 	}
 }
 
+func (s *VolunteerRepo) SendUnsentMessagesByEmail(email string) {
+	for _, v := range s.volunteers {
+		if v.Email == email {
+			for _, msg := range v.UnsentChatMessages {
+				wsutil.WriteServerMessage(v.Conn, ws.OpText, response.SerializeChatMessage(msg))
+			}
+		}
+	}
+}
+
 func (vs *VolunteerRepo) Add(v *Volunteer) {
 	vs.volunteers = append(vs.volunteers, v)
 }
 
-type VolunteerStateUpdate struct {
-	Email string `json:"email"`
-	State string `json:"state"`
-}
-
-func (vs *VolunteerRepo) PrepareStatusUpdate() []VolunteerStateUpdate {
-	states := make([]VolunteerStateUpdate, 0)
+func (vs *VolunteerRepo) PrepareStatusUpdate() []response.VolunteerStateUpdate {
+	states := make([]response.VolunteerStateUpdate, 0)
 	for _, v := range vs.volunteers {
-		states = append(states, VolunteerStateUpdate{
+		states = append(states, response.VolunteerStateUpdate{
 			Email: v.Email,
 			State: v.FSM.Current(),
 		})
