@@ -209,3 +209,11 @@ func (s *StudentRepo) RemoveByUserID(userId int) {
 		}
 	}
 }
+
+func (s *StudentRepo) SendMessageByUserID(userID int, payload []byte) {
+	for _, v := range s.students {
+		if v.UserID == userID {
+			wsutil.WriteServerMessage(v.Conn, ws.OpText, payload)
+		}
+	}
+}

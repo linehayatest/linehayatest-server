@@ -218,3 +218,11 @@ func (s *VolunteerRepo) ExistVolunteerWithEmail(email string) bool {
 	}
 	return false
 }
+
+func (s *VolunteerRepo) SendMessageByEmail(email string, payload []byte) {
+	for _, v := range s.volunteers {
+		if v.Email == email {
+			wsutil.WriteServerMessage(v.Conn, ws.OpText, payload)
+		}
+	}
+}
