@@ -98,9 +98,12 @@ func main() {
 	})
 
 	r.PUT("volunteer_accept_call/:email/:userId", h.HandleVolunteerAcceptCall)
-	r.PUT("")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8050"
+	}
 
-	r.Run(":8050") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.Run(":" + port) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
 func handleSocketMessage(msg events.Message, data []byte, conn net.Conn) {
