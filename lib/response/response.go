@@ -32,7 +32,8 @@ type VolunteerStateUpdate struct {
 }
 
 type StudentStateUpdate struct {
-	UserID int `json:"userId"`
+	UserID int    `json:"userId"`
+	State  string `json:"state"`
 }
 
 type dashboardStatusUpdate struct {
@@ -58,7 +59,7 @@ func ChatRequestAcceptedFactory() []byte {
 
 func NewChatMessage(messageContent string) ChatMessage {
 	return ChatMessage{
-		Type: CHAT_MESSAGE,
+		Type:    CHAT_MESSAGE,
 		Message: messageContent,
 	}
 }

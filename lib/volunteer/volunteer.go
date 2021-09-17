@@ -23,6 +23,7 @@ const (
 	FREE            volunteerState = "free"
 	CHAT_ACTIVE     volunteerState = "chat-active"
 	CHAT_DISCONNECT volunteerState = "chat-disconnect"
+	CALL_ACTIVE     volunteerState = "call-active"
 )
 
 type VolunteerState interface {
@@ -41,6 +42,8 @@ const (
 	REFRESH             volunteerEvent = "3"
 	RECONNECT           volunteerEvent = "4"
 	END_CONVERSATION    volunteerEvent = "5"
+	ACCEPT_CALL_REQUEST volunteerEvent = "6"
+	HANG_UP             volunteerEvent = "7"
 )
 
 type VolunteerEvent interface {
@@ -88,6 +91,16 @@ func volunteerFSMFactory() *fsm.FSM {
 		{
 			Name: END_CONVERSATION.Event(),
 			Src:  []string{CHAT_ACTIVE.State(), CHAT_DISCONNECT.State(), FREE.State()},
+			Dst:  FREE.State(),
+		},
+		{
+			Name: ACCEPT_CALL_REQUEST.Event(),
+			Src:  []string{FREE.State()},
+			Dst:  CALL_ACTIVE.State(),
+		},
+		{
+			Name: HANG_UP.Event(),
+			Src:  []string{CALL_ACTIVE.State(), CHAT_ACTIVE.State(), CHAT_DISCONNECT.State()},
 			Dst:  FREE.State(),
 		},
 	}

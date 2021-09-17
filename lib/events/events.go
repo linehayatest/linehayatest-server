@@ -10,6 +10,9 @@ const (
 	STUDENT_RECONNECT                   = 5
 	SEND_MESSAGE                        = 6
 	END_CONVERSATION                    = 7
+	STUDENT_REQUEST_FOR_CALL            = 8
+	VOLUNTEER_ACCEPT_CALL               = 9
+	END_CALL                            = 10
 )
 
 const VOLUNTEER_TYPE = "volunteer"
@@ -51,3 +54,13 @@ type SendMessagePayload struct {
 		Message string `json:"message"`
 	} `json:"payload"`
 }
+
+type RequestCallPayload struct {
+	Payload struct {
+		PeerID string `json:"peerId"`
+	} `json:"payload"`
+}
+
+type AcceptCallPayload AcceptChatPayload
+
+type EndCallPayload VolunteerReconnectPayload

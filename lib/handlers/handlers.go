@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"fmt"
+	"log"
 	"net"
+	"net/http"
 	"strconv"
 	"time"
 	"wstest/lib/connection"
@@ -31,10 +34,19 @@ func (h *Handler) CanLogin(c *gin.Context) {
 	c.JSON(200, CanLoginResponse{!v})
 }
 
+func (h *Handler) HangUp(c *gin.Context) {
+	email := c.Params.ByName("email")
+
+	h.volunteers.EventByEmail(email, volunteer.HANG_UP)
+	h.updateStatus()
+	c.JSON(200, gin.H{})
+}
+
 func (h *Handler) IsStudentActiveOnAnotherTab(c *gin.Context) {
 	userId, err := strconv.Atoi(c.Params.ByName("userId"))
 	if err != nil {
 		c.JSON(200, CanReconnectResponse{false})
+		return
 	}
 	s := h.students.GetStudentByUserID(userId)
 	isActive := s != nil &&
@@ -47,6 +59,7 @@ func (h *Handler) StudentEndConversation(c *gin.Context) {
 	userId, err := strconv.Atoi(c.Params.ByName("userId"))
 	if err != nil {
 		c.JSON(200, gin.H{})
+		return
 	}
 	h.connections.SendToConnectedVolunteer(userId, string(response.PartyHasEndConversationFactory()))
 	v := h.connections.GetConnectedVolunteer(userId)
@@ -73,6 +86,7 @@ func (h *Handler) CanStudentReconnect(c *gin.Context) {
 	userId, err := strconv.Atoi(c.Params.ByName("userId"))
 	if err != nil {
 		c.JSON(200, CanReconnectResponse{false})
+		return
 	}
 	s := h.students.GetStudentByUserID(userId)
 	isChatting := s != nil &&
@@ -81,12 +95,36 @@ func (h *Handler) CanStudentReconnect(c *gin.Context) {
 	c.JSON(200, CanReconnectResponse{isChatting})
 }
 
+func (h *Handler) HandleVolunteerAcceptCall(c *gin.Context) {
+	email := c.Params.ByName("email")
+	userId, err := strconv.Atoi(c.Params.ByName("userId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err})
+		return
+	}
+	v := h.volunteers.GetVolunteerByEmail(email)
+	if v == nil {
+		return
+	}
+	err = v.FSM.Event(volunteer.ACCEPT_CALL_REQUEST.Event())
+	if err != nil {
+		log.Println("Cannot transition Volunteer to Accept Call")
+	}
+	peerID := h.students.GetStudentByUserID(userId).PeerID
+	h.students.RemoveByUserID(userId)
+	h.updateStatus()
+	h.logger.LogVolunteerAcceptCall(email, userId)
+	c.JSON(http.StatusOK, gin.H{"peer_id": peerID})
+}
+
 func (h *Handler) HandleSocketReadError(err error, conn net.Conn) {
 	// refresh timeout
 	// disconnect timeout
 
 	conn.Close()
 	s := h.students.GetStudentByConn(conn)
+
+	fmt.Printf("Disconnected student: %v\n", s)
 
 	if s != nil {
 		if s.FSM.Current() == student.CHAT_ACTIVE.State() {
@@ -104,7 +142,8 @@ func (h *Handler) HandleSocketReadError(err error, conn net.Conn) {
 
 			})
 		}
-		if s.FSM.Current() == student.WAIT.State() {
+
+		if s.FSM.Current() == student.WAIT.State() || s.FSM.Current() == student.WAIT_CALL.State() {
 			h.students.RemoveByConn(conn)
 			h.updateStatus()
 			h.logger.LogStudentDisconnect(s.UserID, conn)
@@ -125,12 +164,12 @@ func (h *Handler) HandleSocketReadError(err error, conn net.Conn) {
 
 			})
 		}
-		if v.FSM.Current() == volunteer.FREE.State() {
+
+		if v.FSM.Current() == volunteer.FREE.State() || v.FSM.Current() == volunteer.CALL_ACTIVE.State() {
 			h.volunteers.RemoveByConn(conn)
 			h.updateStatus()
 			h.logger.LogVolunteerDisconnect(v.Email, conn)
 		}
-
 	}
 
 	// if student is chat-active

@@ -50,6 +50,7 @@ func main() {
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
 		AllowMethods:    []string{"GET", "PATCH", "PUT", "POST", "OPTIONS", "HEAD", "DELETE"},
+		AllowHeaders:    []string{"Access-Control-Allow-Headers", "Origin", "Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers"},
 	}))
 
 	r.GET("can_volunteer_login/:email", h.CanLogin)
@@ -61,6 +62,8 @@ func main() {
 	r.GET("is_student_active_on_another_tab/:userId", h.IsStudentActiveOnAnotherTab)
 
 	r.PUT("student_end_conversation/:userId", h.StudentEndConversation)
+
+	r.PUT("hang_up/:email", h.HangUp)
 
 	r.GET("/ws", func(c *gin.Context) {
 		defer err2.Catch(func(err error) {
@@ -94,7 +97,10 @@ func main() {
 		}()
 	})
 
-	r.Run(":8080") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	r.PUT("volunteer_accept_call/:email/:userId", h.HandleVolunteerAcceptCall)
+	r.PUT("")
+
+	r.Run(":8050") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
 func handleSocketMessage(msg events.Message, data []byte, conn net.Conn) {
@@ -146,6 +152,11 @@ func handleSocketMessage(msg events.Message, data []byte, conn net.Conn) {
 		id, err := strconv.Atoi(msg.Metadata.Identity)
 		assert.NoError(err, "Failed to handle STUDENT_RECONNECT event. Failed to parse user id")
 		handleStudentReconnect(id, conn)
+	case events.STUDENT_REQUEST_FOR_CALL:
+		payload := new(events.RequestCallPayload)
+		err = json.Unmarshal(data, payload)
+		assert.NoError(err, "Failed to handle REQUEST_CALL event")
+		handleStudentCall(payload.Payload.PeerID, conn)
 	}
 }
 
@@ -169,6 +180,15 @@ func handleStudentEndConversation(conn net.Conn, userId int) {
 	connections.RemoveConnection(conn)
 	students.RemoveByUserID(userId)
 	updateStatus()
+}
+
+func handleStudentCall(peerId string, conn net.Conn) {
+	stud := student.NewStudent(conn)
+	stud.PeerID = peerId
+	students.Add(stud)
+	stud.FSM.Event(student.CALL.Event())
+	updateStatus()
+	appLogger.LogStudentCall(stud.UserID)
 }
 
 func handleVolunteerEndConversation(conn net.Conn, email string) {

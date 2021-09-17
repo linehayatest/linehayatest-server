@@ -21,6 +21,7 @@ type studentState string
 
 const (
 	WAIT            studentState = "wait"
+	WAIT_CALL       studentState = "wait-call"
 	CHAT_ACTIVE     studentState = "chat-active"
 	CHAT_DISCONNECT studentState = "chat-disconnect"
 )
@@ -40,6 +41,7 @@ const (
 	DISCONNECT            studentEvent = "2"
 	REFRESH               studentEvent = "3"
 	RECONNECT             studentEvent = "4"
+	CALL                  studentEvent = "5"
 )
 
 func (e studentEvent) Event() string {
@@ -52,6 +54,7 @@ type StudentEvent interface {
 
 type Student struct {
 	UserID             int
+	PeerID             string
 	Conn               net.Conn
 	FSM                *fsm.FSM
 	UnsentChatMessages []response.ChatMessage
@@ -83,6 +86,11 @@ func studentFSMFactory() *fsm.FSM {
 			Name: RECONNECT.Event(),
 			Src:  []string{CHAT_DISCONNECT.State()},
 			Dst:  CHAT_ACTIVE.State(),
+		},
+		{
+			Name: CALL.Event(),
+			Src:  []string{WAIT.State()},
+			Dst:  WAIT_CALL.State(),
 		},
 	}
 
@@ -134,8 +142,6 @@ func (s *StudentRepo) SetConnByUserID(userID int, conn net.Conn) error {
 func (s *StudentRepo) SendUnsentMessagesByUserID(userID int) {
 	for _, v := range s.students {
 		if v.UserID == userID {
-			fmt.Println("sending chat messages OKAY?")
-			fmt.Printf("Unsent chat messages: %v\n", v.UnsentChatMessages)
 			for _, msg := range v.UnsentChatMessages {
 				wsutil.WriteServerMessage(v.Conn, ws.OpText, response.SerializeChatMessage(msg))
 			}
@@ -150,9 +156,10 @@ func (s *StudentRepo) Add(student *Student) {
 func (s *StudentRepo) PrepareStatusUpdate() []response.StudentStateUpdate {
 	states := make([]response.StudentStateUpdate, 0)
 	for _, stud := range s.students {
-		if stud.FSM.Current() == "wait" {
+		if stud.FSM.Current() == "wait" || stud.FSM.Current() == "wait-call" {
 			states = append(states, response.StudentStateUpdate{
 				UserID: stud.UserID,
+				State:  stud.FSM.Current(),
 			})
 		}
 
@@ -203,9 +210,14 @@ func (s *StudentRepo) RemoveByConn(conn net.Conn) {
 func (s *StudentRepo) RemoveByUserID(userId int) {
 	for i, _ := range s.students {
 		if s.students[i].UserID == userId {
+			fmt.Println("DEBUG 1")
+			// copy last element to this element, and remove the last element
 			s.students[i] = s.students[len(s.students)-1]
+			fmt.Println("DEBUG 2")
 			s.students[len(s.students)-1] = nil
+			fmt.Println("DEBUG 3")
 			s.students = s.students[:len(s.students)-1]
+			fmt.Println("DEBUG 4")
 		}
 	}
 }

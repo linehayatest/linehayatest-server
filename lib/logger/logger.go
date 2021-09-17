@@ -23,6 +23,9 @@ var eventCodeToString = map[events.Event]string{
 	events.STUDENT_RECONNECT:             "STUDENT_RECONNECT",
 	events.SEND_MESSAGE:                  "SEND_MESSAGE",
 	events.END_CONVERSATION:              "END_CONVERSATION",
+	events.STUDENT_REQUEST_FOR_CALL:      "STUDENT_REQUEST_FOR_CALL",
+	events.VOLUNTEER_ACCEPT_CALL:         "VOLUNTEER_ACCEPT_CALL",
+	events.END_CALL:                      "END_CALL",
 }
 
 type AppLogger struct {
@@ -69,6 +72,63 @@ func (l *AppLogger) Log(ev events.Event, conn net.Conn) {
 	log.Printf("Time: %d:%d:%d\n", time.Now().Hour(), time.Now().Minute(), time.Now().Second())
 	log.Printf("EVENT: %s\n", eventCodeToString[ev])
 	log.Printf("Event from: %s\n\n", l.GetEventSource(conn))
+	log.Println("STUDENTS:")
+	l.Printer.Print(studentStates)
+	log.Printf("\n\n")
+	log.Println("VOLUNTEERS:")
+	l.Printer.Print(volunteerStates)
+	log.Printf("\n\n")
+	log.Println("CONNECTIONS:")
+	l.Printer.Print(connectionStates)
+	log.Printf("\n========================================================\n\n")
+}
+
+func (l *AppLogger) LogStudentCall(userId int) {
+	studentStates := l.students.ReadState()
+	volunteerStates := l.volunteers.ReadState()
+	connectionStates := l.connections.ReadState()
+
+	log.Printf("Time: %d:%d:%d\n", time.Now().Hour(), time.Now().Minute(), time.Now().Second())
+	log.Printf("EVENT: Student Request for Call\n")
+	log.Printf("Event from: Student (%d)\n\n", userId)
+	log.Println("STUDENTS:")
+	l.Printer.Print(studentStates)
+	log.Printf("\n\n")
+	log.Println("VOLUNTEERS:")
+	l.Printer.Print(volunteerStates)
+	log.Printf("\n\n")
+	log.Println("CONNECTIONS:")
+	l.Printer.Print(connectionStates)
+	log.Printf("\n========================================================\n\n")
+}
+
+func (l *AppLogger) LogVolunteerAcceptCall(email string, userId int) {
+	studentStates := l.students.ReadState()
+	volunteerStates := l.volunteers.ReadState()
+	connectionStates := l.connections.ReadState()
+
+	log.Printf("Time: %d:%d:%d\n", time.Now().Hour(), time.Now().Minute(), time.Now().Second())
+	log.Printf("EVENT: Volunteer Accept Call\n")
+	log.Printf("Event from: Volunteer (%s) - Accepting Student (%d) \n\n", email, userId)
+	log.Println("STUDENTS:")
+	l.Printer.Print(studentStates)
+	log.Printf("\n\n")
+	log.Println("VOLUNTEERS:")
+	l.Printer.Print(volunteerStates)
+	log.Printf("\n\n")
+	log.Println("CONNECTIONS:")
+	l.Printer.Print(connectionStates)
+	log.Printf("\n========================================================\n\n")
+}
+
+func (l *AppLogger) LogEndCall(email string) {
+	studentStates := l.students.ReadState()
+	volunteerStates := l.volunteers.ReadState()
+	connectionStates := l.connections.ReadState()
+
+	log.Printf("Time: %d:%d:%d\n", time.Now().Hour(), time.Now().Minute(), time.Now().Second())
+	log.Printf("EVENT: Volunteer End Call\n")
+	log.Printf("Event from: Volunteer (%s)\n\n", email)
 	log.Println("STUDENTS:")
 	l.Printer.Print(studentStates)
 	log.Printf("\n\n")
