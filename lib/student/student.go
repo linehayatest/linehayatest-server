@@ -203,6 +203,7 @@ func (s *StudentRepo) RemoveByConn(conn net.Conn) {
 			s.students[i] = s.students[len(s.students)-1]
 			s.students[len(s.students)-1] = nil
 			s.students = s.students[:len(s.students)-1]
+			break
 		}
 	}
 }

@@ -219,6 +219,7 @@ func (s *VolunteerRepo) RemoveByConn(conn net.Conn) {
 			s.volunteers[i] = s.volunteers[len(s.volunteers)-1]
 			s.volunteers[len(s.volunteers)-1] = nil
 			s.volunteers = s.volunteers[:len(s.volunteers)-1]
+			break
 		}
 	}
 }
