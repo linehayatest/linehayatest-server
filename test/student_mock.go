@@ -1,8 +1,6 @@
 package test
 
-import (
-	"net"
-)
+import "net"
 
 // mocks student front-end
 type StudentMock struct {
@@ -11,7 +9,7 @@ type StudentMock struct {
 }
 
 func (s StudentMock) requestChat() {
-
+	
 }
 
 func (s StudentMock) sendMessage() {
