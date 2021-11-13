@@ -211,14 +211,11 @@ func (s *StudentRepo) RemoveByConn(conn net.Conn) {
 func (s *StudentRepo) RemoveByUserID(userId int) {
 	for i, _ := range s.students {
 		if s.students[i].UserID == userId {
-			fmt.Println("DEBUG 1")
 			// copy last element to this element, and remove the last element
 			s.students[i] = s.students[len(s.students)-1]
-			fmt.Println("DEBUG 2")
 			s.students[len(s.students)-1] = nil
-			fmt.Println("DEBUG 3")
 			s.students = s.students[:len(s.students)-1]
-			fmt.Println("DEBUG 4")
+			break
 		}
 	}
 }
