@@ -150,7 +150,13 @@ func (vs *VolunteerRepo) GetVolunteerByEmail(email string) *Volunteer {
 }
 
 func (vs *VolunteerRepo) NotifyAll(message string) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("Recovered from panic:", err)
+		}
+	}()
 	for _, v := range vs.volunteers {
+		fmt.Println("NotifyAll:", v.Conn, "|", ws.OpText, "|", message)
 		err := wsutil.WriteServerMessage(v.Conn, ws.OpText, []byte(message))
 		if err != nil {
 			fmt.Printf("ERROR writing this connection: %v (u.email: %s)", v.Conn, v.Email)
