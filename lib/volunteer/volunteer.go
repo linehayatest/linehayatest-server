@@ -179,6 +179,11 @@ func (vs *VolunteerRepo) Add(v *Volunteer) {
 }
 
 func (vs *VolunteerRepo) PrepareStatusUpdate() []response.VolunteerStateUpdate {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("Recovered from panic:", err)
+		}
+	}()
 	states := make([]response.VolunteerStateUpdate, 0)
 	for _, v := range vs.volunteers {
 		states = append(states, response.VolunteerStateUpdate{
